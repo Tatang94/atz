@@ -7,81 +7,7 @@ import { insertTransactionSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize some sample products if no products exist and Digiflazz is not configured
-  const initializeSampleProducts = async () => {
-    const products = await storage.getProducts();
-    if (products.length === 0 && !isDigiflazzConfigured()) {
-      const sampleProducts = [
-        {
-          sku: "TSEL5",
-          productName: "Telkomsel 5.000",
-          category: "pulsa",
-          brand: "Telkomsel",
-          type: "prepaid",
-          price: "5000",
-          sellerPrice: "6000",
-          buyerPrice: "6000",
-          description: "Pulsa Telkomsel 5.000",
-          isActive: true,
-        },
-        {
-          sku: "TSEL10",
-          productName: "Telkomsel 10.000",
-          category: "pulsa", 
-          brand: "Telkomsel",
-          type: "prepaid",
-          price: "10000",
-          sellerPrice: "11000",
-          buyerPrice: "11000",
-          description: "Pulsa Telkomsel 10.000",
-          isActive: true,
-        },
-        {
-          sku: "ISAT5",
-          productName: "Indosat 5.000",
-          category: "pulsa",
-          brand: "Indosat",
-          type: "prepaid", 
-          price: "5000",
-          sellerPrice: "6000",
-          buyerPrice: "6000",
-          description: "Pulsa Indosat 5.000",
-          isActive: true,
-        },
-        {
-          sku: "XL5",
-          productName: "XL 5.000",
-          category: "pulsa",
-          brand: "XL",
-          type: "prepaid",
-          price: "5000", 
-          sellerPrice: "6000",
-          buyerPrice: "6000",
-          description: "Pulsa XL 5.000",
-          isActive: true,
-        },
-        {
-          sku: "PLN20",
-          productName: "PLN 20.000",
-          category: "pln",
-          brand: "PLN",
-          type: "prepaid",
-          price: "20000",
-          sellerPrice: "21000", 
-          buyerPrice: "21000",
-          description: "Token PLN 20.000",
-          isActive: true,
-        },
-      ];
-      
-      for (const product of sampleProducts) {
-        await storage.createProduct(product);
-      }
-    }
-  };
-
-  // Initialize sample products on server start
-  await initializeSampleProducts();
+  // No more sample products initialization
 
   // Check API configuration status
   app.get("/api/config/status", (req, res) => {
@@ -91,6 +17,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? "Digiflazz API dikonfigurasi dengan benar"
         : "Digiflazz API belum dikonfigurasi. Tambahkan DIGIFLAZZ_USERNAME dan DIGIFLAZZ_API_KEY"
     });
+  });
+
+  // Admin configuration endpoints
+  app.post("/api/admin/config", async (req, res) => {
+    try {
+      const { digiflazzUsername, digiflazzApiKey, databaseUrl } = req.body;
+      
+      // In a real implementation, you would save these to environment variables
+      // For now, we'll temporarily set them in process.env
+      if (digiflazzUsername) process.env.DIGIFLAZZ_USERNAME = digiflazzUsername;
+      if (digiflazzApiKey) process.env.DIGIFLAZZ_API_KEY = digiflazzApiKey;
+      if (databaseUrl) process.env.DATABASE_URL = databaseUrl;
+      
+      res.json({ 
+        message: "Konfigurasi berhasil disimpan",
+        digiflazz: isDigiflazzConfigured()
+      });
+    } catch (error) {
+      console.error("Error saving configuration:", error);
+      res.status(500).json({ message: "Gagal menyimpan konfigurasi" });
+    }
+  });
+
+  // Test Digiflazz API
+  app.post("/api/admin/test-digiflazz", async (req, res) => {
+    try {
+      if (!isDigiflazzConfigured()) {
+        return res.status(400).json({ message: "API Digiflazz belum dikonfigurasi" });
+      }
+      
+      const balance = await digiflazzService.getBalance();
+      res.json({ 
+        message: "API Digiflazz berhasil terhubung",
+        balance 
+      });
+    } catch (error) {
+      console.error("Error testing Digiflazz API:", error);
+      res.status(500).json({ message: "Gagal menghubungi API Digiflazz" });
+    }
+  });
+
+  // Admin stats
+  app.get("/api/admin/stats", async (req, res) => {
+    try {
+      const allTransactions = await storage.getAllTransactions();
+      const products = await storage.getProducts();
+      const users = await storage.getAllUsers();
+      
+      const totalRevenue = allTransactions
+        .filter(t => t.status === 'success')
+        .reduce((sum, t) => sum + parseFloat(t.totalAmount || '0'), 0);
+      
+      const stats = {
+        totalTransactions: allTransactions.length,
+        totalRevenue: totalRevenue.toString(),
+        pendingTransactions: allTransactions.filter(t => t.status === 'pending').length,
+        successfulTransactions: allTransactions.filter(t => t.status === 'success').length,
+        totalProducts: products.length,
+        activeProducts: products.filter(p => p.isActive).length,
+        totalUsers: users.length,
+        activeUsers: users.filter(u => u.isActive).length,
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching admin stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
   });
 
   // Get all products

@@ -135,10 +135,10 @@ export default function HomeNew() {
 
           {/* API Status Alert */}
           {configStatus && !configStatus.digiflazz && (
-            <Alert className="max-w-2xl mx-auto mb-8">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {configStatus.message} Saat ini menggunakan produk contoh untuk demo.
+            <Alert className="max-w-2xl mx-auto mb-8 border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+              <AlertCircle className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-700 dark:text-orange-300">
+                API Digiflazz belum dikonfigurasi. Silakan hubungi admin untuk mengatur API key dan mulai menggunakan produk real.
               </AlertDescription>
             </Alert>
           )}
@@ -198,7 +198,7 @@ export default function HomeNew() {
                     <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                     <p className="text-gray-500">
                       Belum ada produk {currentCategory?.name} tersedia. 
-                      Silakan sinkronisasi produk dari Digiflazz terlebih dahulu.
+                      Admin perlu mengkonfigurasi API Digiflazz dan melakukan sinkronisasi produk.
                     </p>
                   </div>
                 ) : (
@@ -307,7 +307,21 @@ export default function HomeNew() {
                 {/* Transaction Button */}
                 <Button 
                   className="w-full bg-blue-600 hover:bg-blue-700"
-                  disabled={!selectedProduct || !targetNumber.trim()}
+                  disabled={!selectedProduct || !targetNumber.trim() || !configStatus?.digiflazz}
+                  onClick={() => {
+                    if (!configStatus?.digiflazz) {
+                      toast({
+                        title: "API belum dikonfigurasi",
+                        description: "Admin perlu mengkonfigurasi API Digiflazz terlebih dahulu",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    toast({
+                      title: "Fitur dalam pengembangan",
+                      description: "Transaksi akan segera tersedia setelah konfigurasi lengkap",
+                    });
+                  }}
                 >
                   <DollarSign className="w-4 h-4 mr-2" />
                   Lanjut ke Pembayaran

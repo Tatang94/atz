@@ -7,7 +7,7 @@ import Home from "@/pages/home-new";
 import TransactionStatus from "@/pages/transaction-status";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
-import Admin from "@/pages/admin";
+import Admin from "@/pages/admin-new";
 import NotFound from "@/pages/not-found";
 
 function Router() {
