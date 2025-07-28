@@ -22,13 +22,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin configuration endpoints
   app.post("/api/admin/config", async (req, res) => {
     try {
-      const { digiflazzUsername, digiflazzApiKey, databaseUrl } = req.body;
+      const { digiflazzUsername, digiflazzApiKey } = req.body;
       
       // In a real implementation, you would save these to environment variables
       // For now, we'll temporarily set them in process.env
       if (digiflazzUsername) process.env.DIGIFLAZZ_USERNAME = digiflazzUsername;
       if (digiflazzApiKey) process.env.DIGIFLAZZ_API_KEY = digiflazzApiKey;
-      if (databaseUrl) process.env.DATABASE_URL = databaseUrl;
       
       res.json({ 
         message: "Konfigurasi berhasil disimpan",

@@ -14,7 +14,6 @@ import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
   Settings,
-  Database,
   Key,
   RefreshCw, 
   TrendingUp, 
@@ -44,7 +43,6 @@ export default function AdminNew() {
   // Configuration states
   const [digiflazzUsername, setDigiflazzUsername] = useState("");
   const [digiflazzApiKey, setDigiflazzApiKey] = useState("");
-  const [databaseUrl, setDatabaseUrl] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -145,11 +143,7 @@ export default function AdminNew() {
   });
 
   const handleSaveConfig = () => {
-    saveConfigMutation.mutate({
-      digiflazzUsername,
-      digiflazzApiKey,
-      databaseUrl,
-    });
+    saveConfigMutation.mutate();
   };
 
   const formatCurrency = (amount: string | number) => {
@@ -382,33 +376,7 @@ export default function AdminNew() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="w-5 h-5" />
-                  Database Configuration
-                </CardTitle>
-                <CardDescription>
-                  URL koneksi database PostgreSQL (Neon/Supabase)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="dburl">Database URL</Label>
-                  <Textarea
-                    id="dburl"
-                    placeholder="postgresql://username:password@host:port/database"
-                    value={databaseUrl}
-                    onChange={(e) => setDatabaseUrl(e.target.value)}
-                    className="mt-1 font-mono text-sm"
-                    rows={3}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Contoh: postgresql://user:pass@db.supabase.co:5432/postgres
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+
           </TabsContent>
 
           {/* Products Tab */}
