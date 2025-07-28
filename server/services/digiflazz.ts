@@ -13,10 +13,15 @@ export interface DigiflazzProduct {
   brand: string;
   type: string;
   price: number;
-  seller_price: number;
-  buyer_price: number;
+  seller_name: string;
+  buyer_product_status: boolean;
+  seller_product_status: boolean;
+  unlimited_stock: boolean;
+  stock: number;
+  multi: boolean;
+  start_cut_off: string;
+  end_cut_off: string;
   desc: string;
-  buyer_last_status: string;
 }
 
 export interface DigiflazzTransactionRequest {
@@ -83,6 +88,8 @@ export class DigiflazzService {
       });
 
       const data = await response.json();
+      
+      console.log("Raw Digiflazz API response:", JSON.stringify(data).substring(0, 1000));
       
       if (data.result === false) {
         throw new Error(data.message || 'Failed to fetch products');

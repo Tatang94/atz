@@ -35,30 +35,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const digiflazzProducts = await digiflazzService.getProducts();
       
+      console.log("Digiflazz API response:", JSON.stringify(digiflazzProducts).substring(0, 500));
+      
+      if (!Array.isArray(digiflazzProducts)) {
+        console.error("Digiflazz response is not an array:", digiflazzProducts);
+        return res.status(500).json({ message: "Invalid response from Digiflazz API" });
+      }
+      
       for (const product of digiflazzProducts) {
+        // Skip products with missing essential data
+        if (!product.buyer_sku_code || !product.product_name) {
+          console.log("Skipping product with missing data:", product);
+          continue;
+        }
+
         const existingProduct = await storage.getProductBysku(product.buyer_sku_code);
         
+        // Calculate seller and buyer prices (add margin for business logic)
+        const basePrice = product.price || 0;
+        const sellerPrice = Math.round(basePrice * 0.95); // 5% discount for sellers
+        const buyerPrice = Math.round(basePrice * 1.02); // 2% markup for regular buyers
+        
+        const productData = {
+          productName: product.product_name || 'Unknown Product',
+          price: basePrice.toString(),
+          sellerPrice: sellerPrice.toString(),
+          buyerPrice: buyerPrice.toString(),
+          description: product.desc || null,
+          isActive: product.buyer_product_status === true,
+        };
+        
         if (existingProduct) {
-          await storage.updateProduct(product.buyer_sku_code, {
-            productName: product.product_name,
-            price: product.price.toString(),
-            sellerPrice: product.seller_price.toString(),
-            buyerPrice: product.buyer_price.toString(),
-            description: product.desc,
-            isActive: product.buyer_last_status === 'available',
-          });
+          await storage.updateProduct(product.buyer_sku_code, productData);
         } else {
           await storage.createProduct({
             sku: product.buyer_sku_code,
-            productName: product.product_name,
-            category: product.category.toLowerCase(),
-            brand: product.brand,
-            type: product.type,
-            price: product.price.toString(),
-            sellerPrice: product.seller_price.toString(),
-            buyerPrice: product.buyer_price.toString(),
-            description: product.desc,
-            isActive: product.buyer_last_status === 'available',
+            category: (product.category || 'other').toLowerCase(),
+            brand: product.brand || 'Unknown',
+            type: product.type || 'prepaid',
+            ...productData,
           });
         }
       }
