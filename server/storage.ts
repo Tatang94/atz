@@ -30,6 +30,7 @@ export interface IStorage {
   getProductBysku(sku: string): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(sku: string, updates: Partial<Product>): Promise<void>;
+  clearAllProducts(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -175,6 +176,10 @@ export class MemStorage implements IStorage {
       };
       this.products.set(product.id, updatedProduct);
     }
+  }
+
+  async clearAllProducts(): Promise<void> {
+    this.products.clear();
   }
 }
 

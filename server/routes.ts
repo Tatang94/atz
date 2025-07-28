@@ -30,6 +30,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clear all products and re-sync with new pricing
+  app.post("/api/products/clear-and-sync", async (req, res) => {
+    try {
+      await storage.clearAllProducts();
+      
+      const digiflazzProducts = await digiflazzService.getProducts();
+      
+      if (!Array.isArray(digiflazzProducts)) {
+        console.error("Digiflazz response is not an array:", digiflazzProducts);
+        return res.status(500).json({ message: "Invalid response from Digiflazz API" });
+      }
+      
+      for (const product of digiflazzProducts) {
+        // Skip products with missing essential data
+        if (!product.buyer_sku_code || !product.product_name) {
+          console.log("Skipping product with missing data:", product);
+          continue;
+        }
+
+        // Simple pricing: Digiflazz price + 1000 rupiah margin
+        const digiflazzPrice = product.price || 0;
+        const finalPrice = digiflazzPrice + 1000; // Add 1000 rupiah margin
+        
+        await storage.createProduct({
+          sku: product.buyer_sku_code,
+          category: (product.category || 'other').toLowerCase(),
+          brand: product.brand || 'Unknown',
+          type: product.type || 'prepaid',
+          productName: product.product_name || 'Unknown Product',
+          price: digiflazzPrice.toString(), // Keep original Digiflazz price for reference
+          sellerPrice: finalPrice.toString(), // Same price for all users
+          buyerPrice: finalPrice.toString(), // Same price for all users
+          description: product.desc || null,
+          isActive: product.buyer_product_status === true,
+        });
+      }
+
+      res.json({ 
+        message: "All products cleared and re-synced with new pricing (1000 rupiah margin)", 
+        count: digiflazzProducts.length 
+      });
+    } catch (error) {
+      console.error("Error clearing and syncing products:", error);
+      res.status(500).json({ message: "Failed to clear and sync products" });
+    }
+  });
+
   // Sync products from Digiflazz
   app.post("/api/products/sync", async (req, res) => {
     try {
@@ -51,16 +98,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const existingProduct = await storage.getProductBysku(product.buyer_sku_code);
         
-        // Calculate seller and buyer prices (add margin for business logic)
-        const basePrice = product.price || 0;
-        const sellerPrice = Math.round(basePrice * 0.95); // 5% discount for sellers
-        const buyerPrice = Math.round(basePrice * 1.02); // 2% markup for regular buyers
+        // Simple pricing: Digiflazz price + 1000 rupiah margin
+        const digiflazzPrice = product.price || 0;
+        const finalPrice = digiflazzPrice + 1000; // Add 1000 rupiah margin
         
         const productData = {
           productName: product.product_name || 'Unknown Product',
-          price: basePrice.toString(),
-          sellerPrice: sellerPrice.toString(),
-          buyerPrice: buyerPrice.toString(),
+          price: digiflazzPrice.toString(), // Keep original Digiflazz price for reference
+          sellerPrice: finalPrice.toString(), // Same price for all users
+          buyerPrice: finalPrice.toString(), // Same price for all users
           description: product.desc || null,
           isActive: product.buyer_product_status === true,
         };
