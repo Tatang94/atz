@@ -43,6 +43,9 @@ export default function ProductSelector({
   });
 
   const filteredProducts = products.filter((product: Product) => {
+    // Only show active products (controlled by admin)
+    if (!product.isActive) return false;
+    
     if (!operator) return true;
     return product.brand.toLowerCase().includes(operator.toLowerCase());
   });
