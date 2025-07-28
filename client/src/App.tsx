@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import TransactionStatus from "@/pages/transaction-status";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
+import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/status" component={TransactionStatus} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );

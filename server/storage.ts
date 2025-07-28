@@ -31,6 +31,14 @@ export interface IStorage {
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(sku: string, updates: Partial<Product>): Promise<void>;
   clearAllProducts(): Promise<void>;
+  
+  // Admin methods
+  getAllTransactions(page?: number, limit?: number, status?: string, category?: string): Promise<Transaction[]>;
+  getTransactionStats(): Promise<any>;
+  getProductsWithFilters(category?: string, brand?: string, isActive?: boolean): Promise<Product[]>;
+  getProductCategories(): Promise<any[]>;
+  getAllUsers(): Promise<User[]>;
+  updateUser(id: string, updates: Partial<User>): Promise<User>;
 }
 
 export class MemStorage implements IStorage {
@@ -113,6 +121,7 @@ export class MemStorage implements IStorage {
       ...transactionData,
       id,
       refId,
+      userId: transactionData.userId || null,
       operator: transactionData.operator || null,
       digiflazzTrxId: null,
       status: "pending",
@@ -180,6 +189,100 @@ export class MemStorage implements IStorage {
 
   async clearAllProducts(): Promise<void> {
     this.products.clear();
+  }
+
+  // Admin methods implementation
+  async getAllTransactions(page: number = 1, limit: number = 20, status?: string, category?: string): Promise<Transaction[]> {
+    let transactions = Array.from(this.transactions.values());
+    
+    // Filter by status if provided
+    if (status) {
+      transactions = transactions.filter(t => t.status === status);
+    }
+    
+    // Filter by category if provided
+    if (category) {
+      transactions = transactions.filter(t => t.category === category);
+    }
+    
+    // Sort by creation date (newest first)
+    transactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    // Apply pagination
+    const startIndex = (page - 1) * limit;
+    return transactions.slice(startIndex, startIndex + limit);
+  }
+
+  async getTransactionStats(): Promise<any> {
+    const transactions = Array.from(this.transactions.values());
+    const users = Array.from(this.users.values());
+    const products = Array.from(this.products.values());
+    
+    const totalTransactions = transactions.length;
+    const pendingTransactions = transactions.filter(t => t.status === 'pending').length;
+    const successfulTransactions = transactions.filter(t => t.status === 'success').length;
+    const totalRevenue = transactions
+      .filter(t => t.status === 'success')
+      .reduce((sum, t) => sum + parseInt(t.totalAmount), 0)
+      .toString();
+    
+    return {
+      totalTransactions,
+      totalRevenue,
+      pendingTransactions,
+      successfulTransactions,
+      totalProducts: products.length,
+      activeProducts: products.filter(p => p.isActive).length,
+      totalUsers: users.length,
+      activeUsers: users.filter(u => u.isActive).length
+    };
+  }
+
+  async getProductsWithFilters(category?: string, brand?: string, isActive?: boolean): Promise<Product[]> {
+    let products = Array.from(this.products.values());
+    
+    if (category) {
+      products = products.filter(p => p.category === category);
+    }
+    
+    if (brand) {
+      products = products.filter(p => p.brand.toLowerCase().includes(brand.toLowerCase()));
+    }
+    
+    if (isActive !== undefined) {
+      products = products.filter(p => p.isActive === isActive);
+    }
+    
+    return products.sort((a, b) => a.productName.localeCompare(b.productName));
+  }
+
+  async getProductCategories(): Promise<any[]> {
+    const products = Array.from(this.products.values());
+    const categoryMap = new Map<string, number>();
+    
+    products.forEach(product => {
+      const count = categoryMap.get(product.category) || 0;
+      categoryMap.set(product.category, count + 1);
+    });
+    
+    return Array.from(categoryMap.entries()).map(([name, count]) => ({ name, count }));
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values()).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User> {
+    const user = this.users.get(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    const updatedUser = { ...user, ...updates };
+    this.users.set(id, updatedUser);
+    return updatedUser;
   }
 }
 

@@ -159,11 +159,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create payment
       const paymentResponse = await payDisiniService.createPayment(
         transaction.refId,
-        paymentMethod, // service ID for PayDisini
+        paymentMethod || "", // service ID for PayDisini
         transaction.totalAmount,
         `Payment for ${product.productName} - ${targetNumber}`,
         "1800", // 30 minutes
-        `${process.env.BASE_URL || 'http://localhost:5000'}/api/payment-callback`
+        undefined
       );
 
       if (paymentResponse.success && paymentResponse.data) {
@@ -431,6 +431,144 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching payment methods:", error);
       res.status(500).json({ message: "Failed to fetch payment methods" });
+    }
+  });
+
+  // ================== ADMIN ROUTES ==================
+  
+  // Admin: Get all transactions with pagination
+  app.get("/api/admin/transactions", async (req, res) => {
+    try {
+      const { page = 1, limit = 20, status, category } = req.query;
+      const transactions = await storage.getAllTransactions(
+        parseInt(page as string), 
+        parseInt(limit as string),
+        status as string,
+        category as string
+      );
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  // Admin: Get transaction statistics
+  app.get("/api/admin/stats", async (req, res) => {
+    try {
+      const stats = await storage.getTransactionStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ message: "Failed to fetch statistics" });
+    }
+  });
+
+  // Admin: Get all products with filters
+  app.get("/api/admin/products", async (req, res) => {
+    try {
+      const { category, brand, isActive } = req.query;
+      const products = await storage.getProductsWithFilters(
+        category as string,
+        brand as string,
+        isActive === 'true'
+      );
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching admin products:", error);
+      res.status(500).json({ message: "Failed to fetch products" });
+    }
+  });
+
+  // Admin: Update product prices
+  app.patch("/api/admin/products/:sku", async (req, res) => {
+    try {
+      const { sku } = req.params;
+      const { sellerPrice, buyerPrice, isActive } = req.body;
+      
+      const updatedProduct = await storage.updateProduct(sku, {
+        sellerPrice: sellerPrice?.toString(),
+        buyerPrice: buyerPrice?.toString(),
+        isActive
+      });
+      
+      res.json({ message: "Product updated successfully", product: updatedProduct });
+    } catch (error) {
+      console.error("Error updating product:", error);
+      res.status(500).json({ message: "Failed to update product" });
+    }
+  });
+
+  // Admin: Get product categories with counts
+  app.get("/api/admin/categories", async (req, res) => {
+    try {
+      const categories = await storage.getProductCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  // Admin: Test Digiflazz connection
+  app.get("/api/admin/test-digiflazz", async (req, res) => {
+    try {
+      const balance = await digiflazzService.getBalance();
+      const testProducts = await digiflazzService.getProducts();
+      
+      res.json({
+        message: "Digiflazz connection successful",
+        balance: balance,
+        productCount: Array.isArray(testProducts) ? testProducts.length : 0,
+        sampleProducts: Array.isArray(testProducts) ? testProducts.slice(0, 3) : testProducts
+      });
+    } catch (error) {
+      console.error("Digiflazz test failed:", error);
+      res.status(500).json({ 
+        message: "Digiflazz connection failed", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Admin: Clear all products (dangerous operation)
+  app.delete("/api/admin/products", async (req, res) => {
+    try {
+      await storage.clearAllProducts();
+      res.json({ message: "All products cleared successfully" });
+    } catch (error) {
+      console.error("Error clearing products:", error);
+      res.status(500).json({ message: "Failed to clear products" });
+    }
+  });
+
+  // Admin: Get user list
+  app.get("/api/admin/users", async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      // Remove passwords from response
+      const safeUsers = users.map(user => ({ ...user, password: undefined }));
+      res.json(safeUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  // Admin: Update user role or status
+  app.patch("/api/admin/users/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { role, isActive, balance } = req.body;
+      
+      const updatedUser = await storage.updateUser(id, { role, isActive, balance });
+      res.json({ 
+        message: "User updated successfully", 
+        user: { ...updatedUser, password: undefined } 
+      });
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
     }
   });
 
