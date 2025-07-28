@@ -202,15 +202,25 @@ export class DigiflazzService {
   }
 }
 
-export const digiflazzService = new DigiflazzService({
-  username: process.env.DIGIFLAZZ_USERNAME || process.env.DIGIFLAZZ_USER || "",
-  apiKey: process.env.DIGIFLAZZ_API_KEY || process.env.DIGIFLAZZ_KEY || "",
-  productionMode: process.env.NODE_ENV === "production",
-});
-
 // Check if credentials are available
 export const isDigiflazzConfigured = () => {
   const username = process.env.DIGIFLAZZ_USERNAME || process.env.DIGIFLAZZ_USER || "";
   const apiKey = process.env.DIGIFLAZZ_API_KEY || process.env.DIGIFLAZZ_KEY || "";
+  console.log("isDigiflazzConfigured check:", { 
+    hasUsername: !!username, 
+    hasApiKey: !!apiKey, 
+    username: username ? username.substring(0, 3) + "..." : "empty" 
+  });
   return username !== "" && apiKey !== "";
 };
+
+// Create service instance that will be updated when env vars change
+export const getDigiflazzService = () => {
+  return new DigiflazzService({
+    username: process.env.DIGIFLAZZ_USERNAME || process.env.DIGIFLAZZ_USER || "",
+    apiKey: process.env.DIGIFLAZZ_API_KEY || process.env.DIGIFLAZZ_KEY || "",
+    productionMode: process.env.NODE_ENV === "production",
+  });
+};
+
+export const digiflazzService = getDigiflazzService();

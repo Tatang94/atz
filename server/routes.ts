@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { digiflazzService, isDigiflazzConfigured } from "./services/digiflazz";
+import { getDigiflazzService, isDigiflazzConfigured } from "./services/digiflazz";
 import { payDisiniService } from "./services/paydisini";
 import { insertTransactionSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
@@ -24,10 +24,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { digiflazzUsername, digiflazzApiKey } = req.body;
       
+      console.log("Saving config:", { digiflazzUsername, digiflazzApiKey: digiflazzApiKey ? "***" : "empty" });
+      
       // In a real implementation, you would save these to environment variables
       // For now, we'll temporarily set them in process.env
-      if (digiflazzUsername) process.env.DIGIFLAZZ_USERNAME = digiflazzUsername;
-      if (digiflazzApiKey) process.env.DIGIFLAZZ_API_KEY = digiflazzApiKey;
+      if (digiflazzUsername) {
+        process.env.DIGIFLAZZ_USERNAME = digiflazzUsername;
+        console.log("Set DIGIFLAZZ_USERNAME:", digiflazzUsername);
+      }
+      if (digiflazzApiKey) {
+        process.env.DIGIFLAZZ_API_KEY = digiflazzApiKey;
+        console.log("Set DIGIFLAZZ_API_KEY: ***");
+      }
+      
+      console.log("After setting, isConfigured:", isDigiflazzConfigured());
       
       res.json({ 
         message: "Konfigurasi berhasil disimpan",
@@ -114,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.clearAllProducts();
       
-      const digiflazzProducts = await digiflazzService.getProducts();
+      const digiflazzProducts = await getDigiflazzService().getProducts();
       
       if (!Array.isArray(digiflazzProducts)) {
         console.error("Digiflazz response is not an array:", digiflazzProducts);
@@ -167,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const digiflazzProducts = await digiflazzService.getProducts();
+      const digiflazzProducts = await getDigiflazzService().getProducts();
       
       console.log("Digiflazz API response:", JSON.stringify(digiflazzProducts).substring(0, 500));
       
@@ -301,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If payment is successful, process with Digiflazz
       if (newStatus === 'processing') {
         try {
-          const digiflazzResult = await digiflazzService.createTransaction(
+          const digiflazzResult = await getDigiflazzService().createTransaction(
             transaction.productCode,
             transaction.targetNumber,
             transaction.refId
@@ -485,8 +495,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin: Test Digiflazz connection
   app.get("/api/admin/test-digiflazz", async (req, res) => {
     try {
-      const balance = await digiflazzService.getBalance();
-      const testProducts = await digiflazzService.getProducts();
+      const balance = await getDigiflazzService().getBalance();
+      const testProducts = await getDigiflazzService().getProducts();
       
       res.json({
         message: "Digiflazz connection successful",
@@ -654,8 +664,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/test-digiflazz", async (req, res) => {
     try {
-      const balance = await digiflazzService.getBalance();
-      const products = await digiflazzService.getProducts();
+      const balance = await getDigiflazzService().getBalance();
+      const products = await getDigiflazzService().getProducts();
       
       res.json({
         balance,
