@@ -34,6 +34,8 @@ Preferred communication style: Simple, everyday language.
 - ✅ Fixed fetch API errors for GET requests
 - ✅ Removed sync buttons and API messages from homepage
 - ✅ Removed admin panel links from navigation menu
+- ✅ Removed login/register system - transactions now work without user accounts
+- ✅ Simplified header to show "Instant Transactions Without Account"
 - ✅ Application ready for production with clean user interface
 
 ## System Architecture

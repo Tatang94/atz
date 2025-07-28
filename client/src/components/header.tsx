@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Wallet, User, LogIn } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,24 +38,11 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Desktop User Actions */}
+          {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" size="sm">
-              <Wallet className="w-4 h-4 mr-2" />
-              Saldo: Rp 0
-            </Button>
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                <LogIn className="w-4 h-4 mr-2" />
-                Masuk
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="sm">
-                <User className="w-4 h-4 mr-2" />
-                Daftar
-              </Button>
-            </Link>
+            <span className="text-sm text-muted-foreground">
+              Transaksi Instan Tanpa Akun
+            </span>
           </div>
 
           {/* Mobile menu button */}
@@ -82,23 +69,10 @@ export default function Header() {
                   </a>
 
                   
-                  <div className="border-t pt-4 space-y-2">
-                    <Button variant="outline" className="w-full justify-start">
-                      <Wallet className="w-4 h-4 mr-2" />
-                      Saldo: Rp 0
-                    </Button>
-                    <Link href="/login" className="block">
-                      <Button variant="ghost" className="w-full justify-start">
-                        <LogIn className="w-4 h-4 mr-2" />
-                        Masuk
-                      </Button>
-                    </Link>
-                    <Link href="/register" className="block">
-                      <Button className="w-full justify-start">
-                        <User className="w-4 h-4 mr-2" />
-                        Daftar
-                      </Button>
-                    </Link>
+                  <div className="border-t pt-4">
+                    <p className="text-sm text-muted-foreground text-center px-3 py-2">
+                      Transaksi Instan Tanpa Akun
+                    </p>
                   </div>
                 </div>
               </SheetContent>

@@ -249,8 +249,8 @@ export default function HomeNew() {
                   disabled={!selectedProduct || !targetNumber.trim()}
                   onClick={() => {
                     toast({
-                      title: "Fitur dalam pengembangan",
-                      description: "Transaksi akan segera tersedia setelah konfigurasi API lengkap",
+                      title: "Transaksi Otomatis",
+                      description: "Tidak perlu login/register. Cukup pilih produk dan lanjut bayar!",
                     });
                   }}
                 >
@@ -260,9 +260,9 @@ export default function HomeNew() {
 
                 {/* Info */}
                 <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                  <p>• Transaksi diproses otomatis 24/7</p>
+                  <p>• Transaksi instan tanpa perlu daftar akun</p>
                   <p>• Pembayaran melalui QRIS, Transfer Bank, E-wallet</p>
-                  <p>• Token/Pulsa dikirim via SMS & WhatsApp</p>
+                  <p>• Token/Pulsa dikirim langsung via SMS</p>
                 </div>
               </CardContent>
             </Card>
