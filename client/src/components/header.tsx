@@ -34,9 +34,7 @@ export default function Header() {
               <a href="#contact" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
                 Bantuan
               </a>
-              <Link href="/admin" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                Admin
-              </Link>
+
             </div>
           </div>
 
@@ -82,9 +80,7 @@ export default function Header() {
                   <a href="#contact" className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium">
                     Bantuan
                   </a>
-                  <Link href="/admin" className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium">
-                    Admin Panel
-                  </Link>
+
                   
                   <div className="border-t pt-4 space-y-2">
                     <Button variant="outline" className="w-full justify-start">

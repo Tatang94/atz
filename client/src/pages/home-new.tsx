@@ -137,8 +137,7 @@ export default function HomeNew() {
                   <div className="text-center py-8">
                     <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                     <p className="text-gray-500">
-                      Belum ada produk {currentCategory?.name} tersedia. 
-                      Admin perlu mengkonfigurasi API Digiflazz dan melakukan sinkronisasi produk.
+                      Produk {currentCategory?.name} sedang tidak tersedia.
                     </p>
                   </div>
                 ) : (
