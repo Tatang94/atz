@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Header from "@/components/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, CheckCircle, Loader2, RefreshCw, Smartphone, Zap, Gamepad2, CreditCard, Wifi, DollarSign } from "lucide-react";
+import { AlertCircle, Smartphone, Zap, Gamepad2, CreditCard, Wifi, DollarSign, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -29,36 +29,9 @@ export default function HomeNew() {
     },
   });
 
-  // Fetch API configuration status
-  const { data: configStatus } = useQuery({
-    queryKey: ['/api/config/status'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/config/status', {});
-      return response.json();
-    },
-  });
 
-  // Sync products mutation
-  const syncProductsMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/products/sync', {});
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
-      toast({
-        title: "Produk berhasil disinkronisasi",
-        description: "Data produk terbaru telah dimuat dari Digiflazz",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Gagal sinkronisasi produk",
-        description: error.message || "Terjadi kesalahan saat mengambil data produk",
-        variant: "destructive",
-      });
-    },
-  });
+
+
 
   // Categories with icons
   const categories = [
@@ -117,40 +90,7 @@ export default function HomeNew() {
             Top up pulsa, paket data, token PLN, dan voucher game dengan mudah
           </p>
           
-          {/* Sync Products Button */}
-          <div className="flex justify-center gap-4 mb-8">
-            <Button 
-              onClick={() => syncProductsMutation.mutate()}
-              disabled={syncProductsMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {syncProductsMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4 mr-2" />
-              )}
-              Sinkronisasi Produk Digiflazz
-            </Button>
-          </div>
 
-          {/* API Status Alert */}
-          {configStatus && !configStatus.digiflazz && (
-            <Alert className="max-w-2xl mx-auto mb-8 border-orange-200 bg-orange-50 dark:bg-orange-900/20">
-              <AlertCircle className="h-4 w-4 text-orange-600" />
-              <AlertDescription className="text-orange-700 dark:text-orange-300">
-                API Digiflazz belum dikonfigurasi. Silakan hubungi admin untuk mengatur API key dan mulai menggunakan produk real.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {configStatus && configStatus.digiflazz && (
-            <Alert className="max-w-2xl mx-auto mb-8 border-green-200 bg-green-50 dark:bg-green-900/20">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-700 dark:text-green-300">
-                {configStatus.message} Produk real dari Digiflazz tersedia.
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
 
         {/* Category Selection */}
@@ -307,19 +247,11 @@ export default function HomeNew() {
                 {/* Transaction Button */}
                 <Button 
                   className="w-full bg-blue-600 hover:bg-blue-700"
-                  disabled={!selectedProduct || !targetNumber.trim() || !configStatus?.digiflazz}
+                  disabled={!selectedProduct || !targetNumber.trim()}
                   onClick={() => {
-                    if (!configStatus?.digiflazz) {
-                      toast({
-                        title: "API belum dikonfigurasi",
-                        description: "Admin perlu mengkonfigurasi API Digiflazz terlebih dahulu",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
                     toast({
                       title: "Fitur dalam pengembangan",
-                      description: "Transaksi akan segera tersedia setelah konfigurasi lengkap",
+                      description: "Transaksi akan segera tersedia setelah konfigurasi API lengkap",
                     });
                   }}
                 >
