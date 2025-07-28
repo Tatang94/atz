@@ -66,6 +66,13 @@ export default function PaymentMethods({ selectedMethod, onMethodSelect }: Payme
           {paymentMethods.length} metode tersedia
         </Badge>
       </div>
+      
+      {paymentMethods.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          <p>Metode pembayaran sedang dipersiapkan</p>
+          <p className="text-sm">Silakan coba lagi nanti</p>
+        </div>
+      )}
 
       {Object.entries(groupedMethods).map(([type, methods]: [string, any]) => (
         <div key={type} className="space-y-3">

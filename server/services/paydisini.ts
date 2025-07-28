@@ -61,7 +61,7 @@ export class PayDisiniService {
 
   constructor(config: PayDisiniConfig) {
     this.config = config;
-    this.baseUrl = "https://api.paydisini.co.id/v1/";
+    this.baseUrl = "https://paydisini.co.id/api/";
   }
 
   private generateSignature(key: string, uniqueCode: string, service: string, amount: string, validTime: string, note: string): string {
@@ -198,6 +198,6 @@ export class PayDisiniService {
 }
 
 export const payDisiniService = new PayDisiniService({
-  apiKey: process.env.PAYDISINI_API_KEY || process.env.PAYDISINI_KEY || "",
+  apiKey: "ff79be802563e5dc1311c227a72d17c1",
   productionMode: process.env.NODE_ENV === "production",
 });

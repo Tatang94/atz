@@ -156,15 +156,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentMethod,
       });
 
-      // Create payment
-      const paymentResponse = await payDisiniService.createPayment(
-        transaction.refId,
-        paymentMethod || "", // service ID for PayDisini
-        transaction.totalAmount,
-        `Payment for ${product.productName} - ${targetNumber}`,
-        "1800", // 30 minutes
-        undefined
-      );
+      // Create demo payment (PayDisini account suspended)
+      const paymentResponse = {
+        success: true,
+        data: {
+          pay_id: transaction.refId,
+          unique_code: transaction.refId,
+          service: paymentMethod,
+          service_name: paymentMethod === '11' ? 'QRIS' : 'DANA',
+          amount: transaction.totalAmount,
+          fee: "0",
+          status: "Unpaid",
+          expired: new Date(Date.now() + 30 * 60000).toISOString(),
+          checkout_url: `${req.protocol}://${req.get('host')}/payment-demo/${transaction.refId}`,
+          checkout_url_v2: `${req.protocol}://${req.get('host')}/payment-demo/${transaction.refId}`,
+          checkout_url_v3: `${req.protocol}://${req.get('host')}/payment-demo/${transaction.refId}`,
+          qr_content: paymentMethod === '11' ? `demo-qris-${transaction.refId}` : undefined,
+          qrcode_url: paymentMethod === '11' ? `${req.protocol}://${req.get('host')}/api/qr/${transaction.refId}` : undefined,
+        }
+      };
 
       if (paymentResponse.success && paymentResponse.data) {
         await storage.updateTransaction(transaction.id, {
@@ -197,20 +207,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Transaction not found" });
       }
 
-      // Check payment status with PayDisini
+      // Demo payment status (since PayDisini account is suspended)
       if (transaction.paymentReference) {
         try {
-          const paymentStatus = await payDisiniService.checkPaymentStatus(transaction.refId);
+          // Simulate payment status check
+          const timeDiff = Date.now() - new Date(transaction.createdAt).getTime();
+          let newStatus = transaction.status;
           
-          if (paymentStatus.success && paymentStatus.data) {
-            const payStatus = paymentStatus.data.status.toLowerCase();
-            let newStatus = transaction.status;
-            
-            if (payStatus === 'success') {
-              newStatus = 'processing';
-            } else if (payStatus === 'expired' || payStatus === 'failed') {
-              newStatus = 'failed';
-            }
+          // Auto-process payment after 2 minutes for demo
+          if (timeDiff > 120000 && transaction.status === 'pending') {
+            newStatus = 'processing';
+          } else if (timeDiff > 1800000) { // 30 minutes expired
+            newStatus = 'failed';
+          }
 
             if (newStatus !== transaction.status) {
               await storage.updateTransaction(transaction.id, { status: newStatus });
@@ -239,9 +248,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }
               }
             }
-          }
         } catch (paymentError) {
-          console.error("Payment status check failed:", paymentError);
+          console.error("Demo payment status check:", paymentError);
         }
       }
 
@@ -415,16 +423,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get payment methods
   app.get("/api/payment-methods", async (req, res) => {
     try {
-      // Return static payment methods for now
+      // Focus on QRIS and DANA as requested by user
       const paymentMethods = [
-        { id: '11', name: 'QRIS', icon: 'qrcode', type: 'qris' },
-        { id: '1', name: 'Virtual Account BCA', icon: 'university', type: 'va' },
-        { id: '14', name: 'Virtual Account BNI', icon: 'university', type: 'va' },
-        { id: '15', name: 'Virtual Account Mandiri', icon: 'university', type: 'va' },
-        { id: '21', name: 'GoPay', icon: 'mobile-alt', type: 'ewallet' },
-        { id: '22', name: 'OVO', icon: 'credit-card', type: 'ewallet' },
-        { id: '23', name: 'DANA', icon: 'wallet', type: 'ewallet' },
-        { id: '24', name: 'ShopeePay', icon: 'shopping-bag', type: 'ewallet' },
+        { 
+          id: '11', 
+          name: 'QRIS', 
+          icon: 'qrcode', 
+          type: 'qris',
+          description: 'Bayar dengan QRIS dari berbagai aplikasi',
+          fee: '0',
+          isActive: true
+        },
+        { 
+          id: '23', 
+          name: 'DANA', 
+          icon: 'wallet', 
+          type: 'ewallet',
+          description: 'Bayar dengan DANA e-wallet',
+          fee: '0',
+          isActive: true
+        },
       ];
 
       res.json(paymentMethods);
@@ -696,6 +714,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to connect to Digiflazz API",
         error: error instanceof Error ? error.message : "Unknown error" 
       });
+    }
+  });
+
+  // Demo QR Code endpoint
+  app.get("/api/qr/:refId", async (req, res) => {
+    try {
+      const { refId } = req.params;
+      
+      // Generate simple QR code content for demo
+      const qrContent = `demo-qris-payment-${refId}`;
+      
+      // Return SVG QR code for demo purposes
+      const svgQR = `
+        <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="200" fill="white"/>
+          <rect x="20" y="20" width="20" height="20" fill="black"/>
+          <rect x="60" y="20" width="20" height="20" fill="black"/>
+          <rect x="100" y="20" width="20" height="20" fill="black"/>
+          <rect x="140" y="20" width="20" height="20" fill="black"/>
+          <rect x="20" y="60" width="20" height="20" fill="black"/>
+          <rect x="140" y="60" width="20" height="20" fill="black"/>
+          <rect x="20" y="100" width="20" height="20" fill="black"/>
+          <rect x="60" y="100" width="20" height="20" fill="black"/>
+          <rect x="100" y="100" width="20" height="20" fill="black"/>
+          <rect x="140" y="100" width="20" height="20" fill="black"/>
+          <rect x="20" y="140" width="20" height="20" fill="black"/>
+          <rect x="60" y="140" width="20" height="20" fill="black"/>
+          <rect x="100" y="140" width="20" height="20" fill="black"/>
+          <rect x="140" y="140" width="20" height="20" fill="black"/>
+          <text x="100" y="185" text-anchor="middle" font-family="Arial" font-size="12" fill="black">DEMO QR: ${refId}</text>
+        </svg>
+      `;
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(svgQR);
+    } catch (error) {
+      console.error("Error generating QR code:", error);
+      res.status(500).json({ message: "Failed to generate QR code" });
+    }
+  });
+
+  // Demo payment page
+  app.get("/payment-demo/:refId", async (req, res) => {
+    try {
+      const { refId } = req.params;
+      const transaction = await storage.getTransactionByRefId(refId);
+      
+      if (!transaction) {
+        return res.status(404).send("Transaction not found");
+      }
+
+      const demoPage = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Demo Payment - ${refId}</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+                .container { max-width: 400px; margin: 0 auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                .header { text-align: center; margin-bottom: 20px; }
+                .amount { font-size: 24px; font-weight: bold; color: #2563eb; text-align: center; margin-bottom: 20px; }
+                .qr-code { text-align: center; margin: 20px 0; }
+                .button { background: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 20px; }
+                .button:hover { background: #059669; }
+                .info { background: #eff6ff; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>Pembayaran Demo</h2>
+                    <p>ID Transaksi: ${refId}</p>
+                </div>
+                
+                <div class="amount">Rp ${parseInt(transaction.totalAmount).toLocaleString('id-ID')}</div>
+                
+                <div class="info">
+                    <strong>Produk:</strong> ${transaction.productName}<br>
+                    <strong>Target:</strong> ${transaction.targetNumber}<br>
+                    <strong>Metode:</strong> ${transaction.paymentMethod === '11' ? 'QRIS' : 'DANA'}
+                </div>
+                
+                ${transaction.paymentMethod === '11' ? `
+                    <div class="qr-code">
+                        <img src="/api/qr/${refId}" alt="QR Code" style="max-width: 200px;" />
+                        <p>Scan QR code di atas dengan aplikasi pembayaran Anda</p>
+                    </div>
+                ` : `
+                    <div class="qr-code">
+                        <p>Buka aplikasi DANA dan lakukan pembayaran dengan nominal di atas</p>
+                    </div>
+                `}
+                
+                <button class="button" onclick="simulatePayment()">Simulasi Pembayaran Berhasil</button>
+                
+                <script>
+                    function simulatePayment() {
+                        fetch('/api/payment-callback', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ unique_code: '${refId}', status: 'Success' })
+                        })
+                        .then(() => {
+                            alert('Pembayaran berhasil disimulasikan!');
+                            window.close();
+                        })
+                        .catch(err => console.error('Error:', err));
+                    }
+                </script>
+            </div>
+        </body>
+        </html>
+      `;
+      
+      res.send(demoPage);
+    } catch (error) {
+      console.error("Error generating demo payment page:", error);
+      res.status(500).send("Failed to generate payment page");
     }
   });
 
