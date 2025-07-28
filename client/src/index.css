@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 10%, 3.9%);
+  --muted: hsl(240, 4.8%, 95.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(240, 10%, 3.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(240, 10%, 3.9%);
+  --border: hsl(240, 5.9%, 90%);
+  --input: hsl(240, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(142, 76%, 36%);
+  --secondary-foreground: hsl(355, 7%, 97%);
+  --accent: hsl(48, 96%, 53%);
+  --accent-foreground: hsl(26, 83%, 14%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(240, 10%, 3.9%);
+  --radius: 0.75rem;
+  
+  /* Custom colors for Indonesian theme */
+  --indonesian-red: hsl(0, 100%, 50%);
+  --indonesian-white: hsl(0, 0%, 100%);
+  --success-green: hsl(142, 76%, 36%);
+  --warning-orange: hsl(38, 92%, 50%);
+  --info-blue: hsl(207, 90%, 54%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 focus:ring-2 focus:ring-secondary focus:ring-offset-2;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(207, 90%, 54%) 0%, hsl(207, 90%, 45%) 100%);
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(135deg, hsl(142, 76%, 36%) 0%, hsl(142, 76%, 28%) 100%);
+  }
+
+  .operator-telkomsel {
+    @apply text-red-600 bg-red-50 border-red-200;
+  }
+
+  .operator-indosat {
+    @apply text-yellow-600 bg-yellow-50 border-yellow-200;
+  }
+
+  .operator-xl {
+    @apply text-blue-600 bg-blue-50 border-blue-200;
+  }
+
+  .operator-tri {
+    @apply text-orange-600 bg-orange-50 border-orange-200;
+  }
+
+  .operator-axis {
+    @apply text-purple-600 bg-purple-50 border-purple-200;
+  }
+
+  .operator-smartfren {
+    @apply text-pink-600 bg-pink-50 border-pink-200;
+  }
+
+  .status-pending {
+    @apply text-yellow-600 bg-yellow-50 border-yellow-200;
+  }
+
+  .status-processing {
+    @apply text-blue-600 bg-blue-50 border-blue-200;
+  }
+
+  .status-success {
+    @apply text-green-600 bg-green-50 border-green-200;
+  }
+
+  .status-failed {
+    @apply text-red-600 bg-red-50 border-red-200;
+  }
+
+  .status-expired {
+    @apply text-gray-600 bg-gray-50 border-gray-200;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
