@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Header from "@/components/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function HomeNew() {
-  const [selectedCategory, setSelectedCategory] = useState("pulsa");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [targetNumber, setTargetNumber] = useState("");
   const { toast } = useToast();
@@ -24,25 +24,54 @@ export default function HomeNew() {
   const { data: products = [], isLoading: isLoadingProducts, error: productsError } = useQuery({
     queryKey: ['/api/products', selectedCategory],
     queryFn: async () => {
+      if (!selectedCategory) return [];
       const response = await apiRequest('GET', `/api/products/${selectedCategory}`, {});
       return response.json();
     },
+    enabled: !!selectedCategory,
   });
 
 
 
 
 
-  // Categories with icons
-  const categories = [
-    { id: "pulsa", name: "Pulsa", icon: Smartphone, color: "text-blue-600", description: "Top up pulsa semua operator" },
-    { id: "data", name: "Paket Data", icon: Wifi, color: "text-green-600", description: "Paket internet & kuota" },
-    { id: "pln", name: "Token PLN", icon: Zap, color: "text-yellow-600", description: "Token listrik prabayar" },
-    { id: "game", name: "Game Voucher", icon: Gamepad2, color: "text-purple-600", description: "Top up game online" },
-    { id: "ewallet", name: "E-Wallet", icon: CreditCard, color: "text-pink-600", description: "Isi saldo digital" },
-  ];
+  // Fetch available categories from products
+  const { data: availableCategories = [] } = useQuery({
+    queryKey: ['/api/admin/categories'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/admin/categories', {});
+      return response.json();
+    },
+  });
+
+  // Category icons mapping
+  const categoryIcons = {
+    pulsa: { icon: Smartphone, color: "text-blue-600", description: "Top up pulsa semua operator" },
+    data: { icon: Wifi, color: "text-green-600", description: "Paket internet & kuota" },
+    pln: { icon: Zap, color: "text-yellow-600", description: "Token listrik prabayar" },
+    game: { icon: Gamepad2, color: "text-purple-600", description: "Top up game online" },
+    ewallet: { icon: CreditCard, color: "text-pink-600", description: "Isi saldo digital" },
+    other: { icon: CreditCard, color: "text-gray-600", description: "Layanan lainnya" },
+  };
+
+  // Build categories from available products only
+  const categories = availableCategories
+    .filter(cat => cat.count > 0) // Only show categories with products
+    .map(cat => ({
+      id: cat.category,
+      name: cat.category.charAt(0).toUpperCase() + cat.category.slice(1),
+      count: cat.count,
+      ...(categoryIcons[cat.category] || categoryIcons.other)
+    }));
 
   const currentCategory = categories.find(cat => cat.id === selectedCategory);
+
+  // Auto-select first category when categories load
+  useEffect(() => {
+    if (categories.length > 0 && !selectedCategory) {
+      setSelectedCategory(categories[0].id);
+    }
+  }, [categories, selectedCategory]);
 
   // Format currency
   const formatCurrency = (amount: string | number) => {
@@ -94,40 +123,54 @@ export default function HomeNew() {
         </div>
 
         {/* Category Selection */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          {categories.map((category) => (
-            <Card 
-              key={category.id}
-              className={`cursor-pointer transition-all hover:shadow-lg ${
-                selectedCategory === category.id 
-                  ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                  : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
-              onClick={() => setSelectedCategory(category.id)}
-            >
-              <CardContent className="p-4 text-center">
-                <category.icon className={`w-8 h-8 mx-auto mb-2 ${category.color}`} />
-                <h3 className="font-semibold text-sm">{category.name}</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {category.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {categories.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            {categories.map((category) => (
+              <Card 
+                key={category.id}
+                className={`cursor-pointer transition-all hover:shadow-lg ${
+                  selectedCategory === category.id 
+                    ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                }`}
+                onClick={() => setSelectedCategory(category.id)}
+              >
+                <CardContent className="p-4 text-center">
+                  <category.icon className={`w-8 h-8 mx-auto mb-2 ${category.color}`} />
+                  <h3 className="font-semibold text-sm">{category.name}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {category.description}
+                  </p>
+                  <p className="text-xs text-blue-600 font-medium mt-1">
+                    {category.count} produk
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 mb-8">
+            <AlertCircle className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">Belum Ada Kategori Tersedia</h3>
+            <p className="text-gray-500">
+              Admin belum menambahkan produk. Silakan hubungi admin untuk sinkronisasi produk.
+            </p>
+          </div>
+        )}
 
         {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Product Selection */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {currentCategory && <currentCategory.icon className={`w-6 h-6 ${currentCategory.color}`} />}
-                  Produk {currentCategory?.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+        {categories.length > 0 && (
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Product Selection */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {currentCategory && <currentCategory.icon className={`w-6 h-6 ${currentCategory.color}`} />}
+                    Produk {currentCategory?.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                 {isLoadingProducts ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-8 h-8 animate-spin" />
@@ -268,6 +311,7 @@ export default function HomeNew() {
             </Card>
           </div>
         </div>
+        )}
 
         {/* Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
