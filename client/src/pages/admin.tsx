@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -26,7 +27,9 @@ import {
   Eye,
   EyeOff,
   Search,
-  Filter
+  Filter,
+  Edit,
+  Calculator
 } from "lucide-react";
 
 interface Transaction {
@@ -81,6 +84,9 @@ export default function AdminPage() {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [newSellerPrice, setNewSellerPrice] = useState("");
+  const [newBuyerPrice, setNewBuyerPrice] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -172,11 +178,40 @@ export default function AdminPage() {
       toast({ title: "Sukses", description: "Produk berhasil diperbarui" });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/products'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      setEditingProduct(null);
+      setNewSellerPrice("");
+      setNewBuyerPrice("");
     },
     onError: () => {
       toast({ title: "Error", description: "Gagal memperbarui produk", variant: "destructive" });
     },
   });
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setNewSellerPrice(product.sellerPrice);
+    setNewBuyerPrice(product.buyerPrice);
+  };
+
+  const handleSaveProductPricing = () => {
+    if (!editingProduct) return;
+    
+    updateProductMutation.mutate({
+      sku: editingProduct.sku,
+      data: {
+        sellerPrice: newSellerPrice,
+        buyerPrice: newBuyerPrice
+      }
+    });
+  };
+
+  const calculateMargin = (originalPrice: string, sellingPrice: string) => {
+    const original = parseInt(originalPrice);
+    const selling = parseInt(sellingPrice);
+    const margin = selling - original;
+    const percentage = ((margin / original) * 100).toFixed(1);
+    return { margin, percentage };
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -475,7 +510,9 @@ export default function AdminPage() {
                         <TableHead>Nama Produk</TableHead>
                         <TableHead>Kategori</TableHead>
                         <TableHead>Brand</TableHead>
+                        <TableHead>Harga Modal</TableHead>
                         <TableHead>Harga Jual</TableHead>
+                        <TableHead>Margin</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Aksi</TableHead>
                       </TableRow>
@@ -495,8 +532,26 @@ export default function AdminPage() {
                             </Badge>
                           </TableCell>
                           <TableCell>{product.brand}</TableCell>
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium text-sm">
+                            {formatCurrency(product.price)}
+                          </TableCell>
+                          <TableCell className="font-medium text-sm">
                             {formatCurrency(product.buyerPrice)}
+                          </TableCell>
+                          <TableCell>
+                            {(() => {
+                              const { margin, percentage } = calculateMargin(product.price, product.buyerPrice);
+                              return (
+                                <div className="text-sm">
+                                  <div className="font-medium text-green-600">
+                                    +{formatCurrency(margin.toString())}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {percentage}%
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
@@ -511,29 +566,40 @@ export default function AdminPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              onClick={() => {
-                                updateProductMutation.mutate({
-                                  sku: product.sku,
-                                  data: { isActive: !product.isActive }
-                                });
-                              }}
-                              disabled={updateProductMutation.isPending}
-                            >
-                              {product.isActive ? (
-                                <>
-                                  <EyeOff className="w-3 h-3 mr-1" />
-                                  Nonaktifkan
-                                </>
-                              ) : (
-                                <>
-                                  <Eye className="w-3 h-3 mr-1" />
-                                  Aktifkan
-                                </>
-                              )}
-                            </Button>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleEditProduct(product)}
+                                disabled={updateProductMutation.isPending}
+                              >
+                                <Edit className="w-3 h-3 mr-1" />
+                                Edit Harga
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  updateProductMutation.mutate({
+                                    sku: product.sku,
+                                    data: { isActive: !product.isActive }
+                                  });
+                                }}
+                                disabled={updateProductMutation.isPending}
+                              >
+                                {product.isActive ? (
+                                  <>
+                                    <EyeOff className="w-3 h-3 mr-1" />
+                                    Nonaktif
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="w-3 h-3 mr-1" />
+                                    Aktif
+                                  </>
+                                )}
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -683,6 +749,95 @@ export default function AdminPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialog Edit Harga Produk */}
+      <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Harga Produk</DialogTitle>
+            <DialogDescription>
+              Atur harga jual dan margin keuntungan untuk produk ini
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingProduct && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <Label className="font-medium">Produk:</Label>
+                  <p className="text-muted-foreground">{editingProduct.productName}</p>
+                </div>
+                <div>
+                  <Label className="font-medium">Brand:</Label>
+                  <p className="text-muted-foreground">{editingProduct.brand}</p>
+                </div>
+              </div>
+              
+              <div className="bg-muted p-3 rounded-lg">
+                <Label className="font-medium text-sm">Harga Modal Digiflazz:</Label>
+                <p className="text-lg font-bold">{formatCurrency(editingProduct.price)}</p>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="sellerPrice">Harga untuk Reseller</Label>
+                  <Input
+                    id="sellerPrice"
+                    type="number"
+                    value={newSellerPrice}
+                    onChange={(e) => setNewSellerPrice(e.target.value)}
+                    placeholder="Harga untuk reseller"
+                  />
+                  {newSellerPrice && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Margin: {formatCurrency((parseInt(newSellerPrice) - parseInt(editingProduct.price)).toString())} 
+                      ({(((parseInt(newSellerPrice) - parseInt(editingProduct.price)) / parseInt(editingProduct.price)) * 100).toFixed(1)}%)
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="buyerPrice">Harga untuk Customer</Label>
+                  <Input
+                    id="buyerPrice"
+                    type="number"
+                    value={newBuyerPrice}
+                    onChange={(e) => setNewBuyerPrice(e.target.value)}
+                    placeholder="Harga untuk customer"
+                  />
+                  {newBuyerPrice && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Margin: {formatCurrency((parseInt(newBuyerPrice) - parseInt(editingProduct.price)).toString())} 
+                      ({(((parseInt(newBuyerPrice) - parseInt(editingProduct.price)) / parseInt(editingProduct.price)) * 100).toFixed(1)}%)
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {newSellerPrice && newBuyerPrice && parseInt(newSellerPrice) > parseInt(newBuyerPrice) && (
+                <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+                  <p className="text-red-800 text-sm">
+                    ⚠️ Peringatan: Harga reseller lebih tinggi dari harga customer!
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingProduct(null)}>
+              Batal
+            </Button>
+            <Button 
+              onClick={handleSaveProductPricing}
+              disabled={updateProductMutation.isPending || !newSellerPrice || !newBuyerPrice}
+            >
+              <Calculator className="w-4 h-4 mr-2" />
+              {updateProductMutation.isPending ? 'Menyimpan...' : 'Simpan Harga'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -645,6 +645,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { sku } = req.params;
       const updates = req.body;
+      
+      // Validate pricing updates
+      if (updates.sellerPrice && updates.buyerPrice) {
+        const sellerPrice = parseInt(updates.sellerPrice);
+        const buyerPrice = parseInt(updates.buyerPrice);
+        
+        if (sellerPrice <= 0 || buyerPrice <= 0) {
+          return res.status(400).json({ message: "Harga harus lebih dari 0" });
+        }
+        
+        if (sellerPrice > buyerPrice) {
+          return res.status(400).json({ 
+            message: "Harga reseller tidak boleh lebih tinggi dari harga customer" 
+          });
+        }
+      }
+      
       await storage.updateProduct(sku, updates);
       res.json({ message: "Product updated successfully" });
     } catch (error) {
