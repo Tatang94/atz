@@ -75,7 +75,7 @@ interface Stats {
 
 export default function AdminPage() {
   const [selectedTab, setSelectedTab] = useState("overview");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [showActiveOnly, setShowActiveOnly] = useState(false);
 
@@ -91,7 +91,7 @@ export default function AdminPage() {
   });
 
   const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: ['/api/admin/products', selectedCategory, selectedBrand, showActiveOnly],
+    queryKey: ['/api/admin/products', selectedCategory === 'all' ? '' : selectedCategory, selectedBrand, showActiveOnly],
     refetchInterval: 60000, // Refresh every minute
   });
 
@@ -378,7 +378,7 @@ export default function AdminPage() {
                       <SelectValue placeholder="Semua kategori" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Semua kategori</SelectItem>
+                      <SelectItem value="all">Semua kategori</SelectItem>
                       <SelectItem value="pulsa">Pulsa</SelectItem>
                       <SelectItem value="data">Paket Data</SelectItem>
                       <SelectItem value="pln">PLN</SelectItem>
