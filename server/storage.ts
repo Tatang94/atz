@@ -125,6 +125,7 @@ export class MemStorage implements IStorage {
       operator: transactionData.operator || null,
       digiflazzTrxId: null,
       status: "pending",
+      paymentMethod: transactionData.paymentMethod || null,
       paymentReference: null,
       paymentUrl: null,
       sn: null,

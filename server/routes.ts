@@ -1,12 +1,98 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { digiflazzService } from "./services/digiflazz";
+import { digiflazzService, isDigiflazzConfigured } from "./services/digiflazz";
 import { payDisiniService } from "./services/paydisini";
 import { insertTransactionSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize some sample products if no products exist and Digiflazz is not configured
+  const initializeSampleProducts = async () => {
+    const products = await storage.getProducts();
+    if (products.length === 0 && !isDigiflazzConfigured()) {
+      const sampleProducts = [
+        {
+          sku: "TSEL5",
+          productName: "Telkomsel 5.000",
+          category: "pulsa",
+          brand: "Telkomsel",
+          type: "prepaid",
+          price: "5000",
+          sellerPrice: "6000",
+          buyerPrice: "6000",
+          description: "Pulsa Telkomsel 5.000",
+          isActive: true,
+        },
+        {
+          sku: "TSEL10",
+          productName: "Telkomsel 10.000",
+          category: "pulsa", 
+          brand: "Telkomsel",
+          type: "prepaid",
+          price: "10000",
+          sellerPrice: "11000",
+          buyerPrice: "11000",
+          description: "Pulsa Telkomsel 10.000",
+          isActive: true,
+        },
+        {
+          sku: "ISAT5",
+          productName: "Indosat 5.000",
+          category: "pulsa",
+          brand: "Indosat",
+          type: "prepaid", 
+          price: "5000",
+          sellerPrice: "6000",
+          buyerPrice: "6000",
+          description: "Pulsa Indosat 5.000",
+          isActive: true,
+        },
+        {
+          sku: "XL5",
+          productName: "XL 5.000",
+          category: "pulsa",
+          brand: "XL",
+          type: "prepaid",
+          price: "5000", 
+          sellerPrice: "6000",
+          buyerPrice: "6000",
+          description: "Pulsa XL 5.000",
+          isActive: true,
+        },
+        {
+          sku: "PLN20",
+          productName: "PLN 20.000",
+          category: "pln",
+          brand: "PLN",
+          type: "prepaid",
+          price: "20000",
+          sellerPrice: "21000", 
+          buyerPrice: "21000",
+          description: "Token PLN 20.000",
+          isActive: true,
+        },
+      ];
+      
+      for (const product of sampleProducts) {
+        await storage.createProduct(product);
+      }
+    }
+  };
+
+  // Initialize sample products on server start
+  await initializeSampleProducts();
+
+  // Check API configuration status
+  app.get("/api/config/status", (req, res) => {
+    res.json({
+      digiflazz: isDigiflazzConfigured(),
+      message: isDigiflazzConfigured() 
+        ? "Digiflazz API dikonfigurasi dengan benar"
+        : "Digiflazz API belum dikonfigurasi. Tambahkan DIGIFLAZZ_USERNAME dan DIGIFLAZZ_API_KEY"
+    });
+  });
+
   // Get all products
   app.get("/api/products", async (req, res) => {
     try {
@@ -80,6 +166,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Sync products from Digiflazz
   app.post("/api/products/sync", async (req, res) => {
     try {
+      // Check if Digiflazz is configured
+      if (!isDigiflazzConfigured()) {
+        return res.status(400).json({ 
+          message: "Digiflazz API belum dikonfigurasi. Silakan tambahkan DIGIFLAZZ_USERNAME dan DIGIFLAZZ_API_KEY pada environment variables.",
+          configured: false
+        });
+      }
+
       const digiflazzProducts = await digiflazzService.getProducts();
       
       console.log("Digiflazz API response:", JSON.stringify(digiflazzProducts).substring(0, 500));

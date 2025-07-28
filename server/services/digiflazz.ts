@@ -207,3 +207,10 @@ export const digiflazzService = new DigiflazzService({
   apiKey: process.env.DIGIFLAZZ_API_KEY || process.env.DIGIFLAZZ_KEY || "",
   productionMode: process.env.NODE_ENV === "production",
 });
+
+// Check if credentials are available
+export const isDigiflazzConfigured = () => {
+  const username = process.env.DIGIFLAZZ_USERNAME || process.env.DIGIFLAZZ_USER || "";
+  const apiKey = process.env.DIGIFLAZZ_API_KEY || process.env.DIGIFLAZZ_KEY || "";
+  return username !== "" && apiKey !== "";
+};
