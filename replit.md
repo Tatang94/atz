@@ -22,6 +22,9 @@ Preferred communication style: Simple, everyday language.
   - API endpoints for categories, products, and transactions
   - Database schema with sample data for testing
   - No login system - instant transactions without accounts
+  - Extended categories: Pulsa, Data, Games, Voucher, E-Money, PLN, International Topup (China, Malaysia, Philippines, Singapore, Thailand, Vietnam), SMS & Telpon, Streaming TV, Aktivasi Voucher, Masa Aktif, Bundling, Aktivasi Perdana, Gas, eSIM, Media Sosial
+  - Beautiful gradient icons and hover effects for each category
+  - Smart input forms that adapt based on selected category
   - Ready for deployment on any PHP hosting provider
 - ✅ Project ready for production deployment or PHP port development
 

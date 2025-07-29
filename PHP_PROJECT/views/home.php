@@ -48,59 +48,256 @@ $categories = getProductCategories();
         </div>
 
         <!-- Categories Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-            <div x-show="categories.pulsa > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border-2 hover:border-blue-200" 
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
+            <!-- Pulsa -->
+            <div x-show="categories.pulsa > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-blue-200 transform hover:scale-105" 
                  @click="selectCategory('pulsa')">
                 <div class="text-center">
-                    <div class="w-12 h-12 mx-auto bg-blue-100 rounded-xl flex items-center justify-center mb-3">
-                        <i data-lucide="smartphone" class="w-6 h-6 text-blue-600"></i>
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="smartphone" class="w-7 h-7 text-blue-600"></i>
                     </div>
                     <h3 class="font-semibold text-gray-800 mb-1">Pulsa</h3>
                     <p class="text-xs text-gray-600" x-text="categories.pulsa + ' produk'"></p>
                 </div>
             </div>
 
-            <div x-show="categories.data > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border-2 hover:border-green-200" 
+            <!-- Data -->
+            <div x-show="categories.data > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-green-200 transform hover:scale-105" 
                  @click="selectCategory('data')">
                 <div class="text-center">
-                    <div class="w-12 h-12 mx-auto bg-green-100 rounded-xl flex items-center justify-center mb-3">
-                        <i data-lucide="wifi" class="w-6 h-6 text-green-600"></i>
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="wifi" class="w-7 h-7 text-green-600"></i>
                     </div>
-                    <h3 class="font-semibold text-gray-800 mb-1">Paket Data</h3>
+                    <h3 class="font-semibold text-gray-800 mb-1">Data</h3>
                     <p class="text-xs text-gray-600" x-text="categories.data + ' produk'"></p>
                 </div>
             </div>
 
-            <div x-show="categories.pln > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border-2 hover:border-yellow-200" 
+            <!-- Games -->
+            <div x-show="categories.games > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-purple-200 transform hover:scale-105" 
+                 @click="selectCategory('games')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="gamepad-2" class="w-7 h-7 text-purple-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1">Games</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.games + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Voucher -->
+            <div x-show="categories.voucher > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-orange-200 transform hover:scale-105" 
+                 @click="selectCategory('voucher')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="gift" class="w-7 h-7 text-orange-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1">Voucher</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.voucher + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- E-Money -->
+            <div x-show="categories.emoney > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-indigo-200 transform hover:scale-105" 
+                 @click="selectCategory('emoney')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="wallet" class="w-7 h-7 text-indigo-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1">E-Money</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.emoney + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- PLN -->
+            <div x-show="categories.pln > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-yellow-200 transform hover:scale-105" 
                  @click="selectCategory('pln')">
                 <div class="text-center">
-                    <div class="w-12 h-12 mx-auto bg-yellow-100 rounded-xl flex items-center justify-center mb-3">
-                        <i data-lucide="zap" class="w-6 h-6 text-yellow-600"></i>
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="zap" class="w-7 h-7 text-yellow-600"></i>
                     </div>
-                    <h3 class="font-semibold text-gray-800 mb-1">Token PLN</h3>
+                    <h3 class="font-semibold text-gray-800 mb-1">PLN</h3>
                     <p class="text-xs text-gray-600" x-text="categories.pln + ' produk'"></p>
                 </div>
             </div>
 
-            <div x-show="categories.game > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border-2 hover:border-purple-200" 
-                 @click="selectCategory('game')">
+            <!-- China Topup -->
+            <div x-show="categories.china_topup > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-red-200 transform hover:scale-105" 
+                 @click="selectCategory('china_topup')">
                 <div class="text-center">
-                    <div class="w-12 h-12 mx-auto bg-purple-100 rounded-xl flex items-center justify-center mb-3">
-                        <i data-lucide="gamepad-2" class="w-6 h-6 text-purple-600"></i>
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="flag" class="w-7 h-7 text-red-600"></i>
                     </div>
-                    <h3 class="font-semibold text-gray-800 mb-1">Voucher Game</h3>
-                    <p class="text-xs text-gray-600" x-text="categories.game + ' produk'"></p>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">China Topup</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.china_topup + ' produk'"></p>
                 </div>
             </div>
 
-            <div x-show="categories.ewallet > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border-2 hover:border-indigo-200" 
-                 @click="selectCategory('ewallet')">
+            <!-- Malaysia Topup -->
+            <div x-show="categories.malaysia_topup > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-teal-200 transform hover:scale-105" 
+                 @click="selectCategory('malaysia_topup')">
                 <div class="text-center">
-                    <div class="w-12 h-12 mx-auto bg-indigo-100 rounded-xl flex items-center justify-center mb-3">
-                        <i data-lucide="wallet" class="w-6 h-6 text-indigo-600"></i>
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="map-pin" class="w-7 h-7 text-teal-600"></i>
                     </div>
-                    <h3 class="font-semibold text-gray-800 mb-1">E-Wallet</h3>
-                    <p class="text-xs text-gray-600" x-text="categories.ewallet + ' produk'"></p>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Malaysia Topup</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.malaysia_topup + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Philippines Topup -->
+            <div x-show="categories.philippines_topup > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-cyan-200 transform hover:scale-105" 
+                 @click="selectCategory('philippines_topup')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="globe" class="w-7 h-7 text-cyan-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Philippines Topup</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.philippines_topup + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Singapore Topup -->
+            <div x-show="categories.singapore_topup > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-pink-200 transform hover:scale-105" 
+                 @click="selectCategory('singapore_topup')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="building" class="w-7 h-7 text-pink-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Singapore Topup</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.singapore_topup + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Thailand Topup -->
+            <div x-show="categories.thailand_topup > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-rose-200 transform hover:scale-105" 
+                 @click="selectCategory('thailand_topup')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-rose-100 to-rose-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="palmtree" class="w-7 h-7 text-rose-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Thailand Topup</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.thailand_topup + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- SMS & Telpon -->
+            <div x-show="categories.sms_telpon > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-amber-200 transform hover:scale-105" 
+                 @click="selectCategory('sms_telpon')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="message-circle" class="w-7 h-7 text-amber-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">SMS & Telpon</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.sms_telpon + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Vietnam Topup -->
+            <div x-show="categories.vietnam_topup > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-emerald-200 transform hover:scale-105" 
+                 @click="selectCategory('vietnam_topup')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="mountain" class="w-7 h-7 text-emerald-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Vietnam Topup</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.vietnam_topup + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Streaming TV -->
+            <div x-show="categories.streaming_tv > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-violet-200 transform hover:scale-105" 
+                 @click="selectCategory('streaming_tv')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-violet-100 to-violet-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="tv" class="w-7 h-7 text-violet-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Streaming TV</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.streaming_tv + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Aktivasi Voucher -->
+            <div x-show="categories.aktivasi_voucher > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-lime-200 transform hover:scale-105" 
+                 @click="selectCategory('aktivasi_voucher')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-lime-100 to-lime-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="ticket" class="w-7 h-7 text-lime-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Aktivasi Voucher</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.aktivasi_voucher + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Masa Aktif -->
+            <div x-show="categories.masa_aktif > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-sky-200 transform hover:scale-105" 
+                 @click="selectCategory('masa_aktif')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-sky-100 to-sky-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="clock" class="w-7 h-7 text-sky-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Masa Aktif</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.masa_aktif + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Bundling -->
+            <div x-show="categories.bundling > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-stone-200 transform hover:scale-105" 
+                 @click="selectCategory('bundling')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-stone-100 to-stone-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="package-2" class="w-7 h-7 text-stone-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Bundling</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.bundling + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Aktivasi Perdana -->
+            <div x-show="categories.aktivasi_perdana > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-neutral-200 transform hover:scale-105" 
+                 @click="selectCategory('aktivasi_perdana')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="sim-card" class="w-7 h-7 text-neutral-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Aktivasi Perdana</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.aktivasi_perdana + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Gas -->
+            <div x-show="categories.gas > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-gray-200 transform hover:scale-105" 
+                 @click="selectCategory('gas')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="flame" class="w-7 h-7 text-gray-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Gas</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.gas + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- eSIM -->
+            <div x-show="categories.esim > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-blue-200 transform hover:scale-105" 
+                 @click="selectCategory('esim')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="credit-card" class="w-7 h-7 text-blue-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">eSIM</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.esim + ' produk'"></p>
+                </div>
+            </div>
+
+            <!-- Media Sosial -->
+            <div x-show="categories.media_sosial > 0" class="category-card bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer border-2 hover:border-fuchsia-200 transform hover:scale-105" 
+                 @click="selectCategory('media_sosial')">
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-fuchsia-100 to-fuchsia-200 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="share-2" class="w-7 h-7 text-fuchsia-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-1 text-xs">Media Sosial</h3>
+                    <p class="text-xs text-gray-600" x-text="categories.media_sosial + ' produk'"></p>
                 </div>
             </div>
         </div>
@@ -114,8 +311,9 @@ $categories = getProductCategories();
                 </button>
             </div>
 
-            <!-- Phone Number Input (for pulsa/data) -->
-            <div x-show="['pulsa', 'data'].includes(selectedCategory)" class="mb-6">
+            <!-- Customer Input Forms -->
+            <!-- Phone Number Input (for phone-based categories) -->
+            <div x-show="['pulsa', 'data', 'emoney', 'sms_telpon', 'masa_aktif', 'aktivasi_perdana', 'esim', 'bundling'].includes(selectedCategory)" class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Nomor HP</label>
                 <input type="tel" x-model="phoneNumber" @input="detectOperator()" 
                        placeholder="Masukkan nomor HP" 
@@ -127,25 +325,65 @@ $categories = getProductCategories();
             <!-- PLN Customer ID Input -->
             <div x-show="selectedCategory === 'pln'" class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">ID Pelanggan PLN</label>
-                <input type="text" x-model="plnCustomerId" 
+                <input type="text" x-model="customerInput" 
                        placeholder="Masukkan ID Pelanggan PLN" 
                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
             </div>
 
-            <!-- Game User ID Input -->
-            <div x-show="selectedCategory === 'game'" class="mb-6">
+            <!-- Games User ID Input -->
+            <div x-show="selectedCategory === 'games'" class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">User ID Game</label>
-                <input type="text" x-model="gameUserId" 
-                       placeholder="Masukkan User ID" 
+                <input type="text" x-model="customerInput" 
+                       placeholder="Masukkan User ID Game" 
                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent">
             </div>
 
-            <!-- E-wallet Phone Input -->
-            <div x-show="selectedCategory === 'ewallet'" class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Nomor HP E-Wallet</label>
-                <input type="tel" x-model="ewalletPhone" 
-                       placeholder="Nomor HP terdaftar di e-wallet" 
-                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <!-- Voucher Code Input -->
+            <div x-show="selectedCategory === 'voucher'" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email/Account</label>
+                <input type="email" x-model="customerInput" 
+                       placeholder="Email untuk pengiriman voucher" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            </div>
+
+            <!-- Gas Customer ID Input -->
+            <div x-show="selectedCategory === 'gas'" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">ID Pelanggan Gas</label>
+                <input type="text" x-model="customerInput" 
+                       placeholder="Masukkan ID Pelanggan Gas" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+            </div>
+
+            <!-- International Topup Phone Input -->
+            <div x-show="['china_topup', 'malaysia_topup', 'philippines_topup', 'singapore_topup', 'thailand_topup', 'vietnam_topup'].includes(selectedCategory)" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nomor HP Internasional</label>
+                <input type="tel" x-model="customerInput" 
+                       :placeholder="getInternationalPlaceholder(selectedCategory)" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+            </div>
+
+            <!-- Streaming TV Email Input -->
+            <div x-show="selectedCategory === 'streaming_tv'" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email Account</label>
+                <input type="email" x-model="customerInput" 
+                       placeholder="Email untuk akun streaming" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+            </div>
+
+            <!-- Aktivasi Voucher Phone Input -->
+            <div x-show="selectedCategory === 'aktivasi_voucher'" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Kartu</label>
+                <input type="text" x-model="customerInput" 
+                       placeholder="Nomor kartu yang akan diaktivasi" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-lime-500 focus:border-transparent">
+            </div>
+
+            <!-- Media Sosial Account Input -->
+            <div x-show="selectedCategory === 'media_sosial'" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Username/ID Akun</label>
+                <input type="text" x-model="customerInput" 
+                       placeholder="Username Instagram/TikTok/dll" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-fuchsia-500 focus:border-transparent">
             </div>
 
             <!-- Products List -->
@@ -200,21 +438,13 @@ $categories = getProductCategories();
                         </div>
                         
                         <div class="space-y-2">
-                            <div x-show="['pulsa', 'data'].includes(selectedCategory)">
+                            <div x-show="['pulsa', 'data', 'emoney', 'sms_telpon', 'masa_aktif', 'aktivasi_perdana', 'esim', 'bundling'].includes(selectedCategory)">
                                 <span class="text-sm text-gray-600">Nomor HP: </span>
                                 <span class="font-medium" x-text="phoneNumber"></span>
                             </div>
-                            <div x-show="selectedCategory === 'pln'">
-                                <span class="text-sm text-gray-600">ID Pelanggan: </span>
-                                <span class="font-medium" x-text="plnCustomerId"></span>
-                            </div>
-                            <div x-show="selectedCategory === 'game'">
-                                <span class="text-sm text-gray-600">User ID: </span>
-                                <span class="font-medium" x-text="gameUserId"></span>
-                            </div>
-                            <div x-show="selectedCategory === 'ewallet'">
-                                <span class="text-sm text-gray-600">Nomor E-Wallet: </span>
-                                <span class="font-medium" x-text="ewalletPhone"></span>
+                            <div x-show="!['pulsa', 'data', 'emoney', 'sms_telpon', 'masa_aktif', 'aktivasi_perdana', 'esim', 'bundling'].includes(selectedCategory)">
+                                <span class="text-sm text-gray-600" x-text="getCustomerDataLabel(selectedCategory) + ': '"></span>
+                                <span class="font-medium" x-text="customerInput"></span>
                             </div>
                         </div>
                     </div>
@@ -246,9 +476,7 @@ $categories = getProductCategories();
                 products: [],
                 loading: false,
                 phoneNumber: '',
-                plnCustomerId: '',
-                gameUserId: '',
-                ewalletPhone: '',
+                customerInput: '',
                 detectedOperator: '',
                 selectedProduct: null,
                 showTransactionModal: false,
@@ -344,27 +572,74 @@ $categories = getProductCategories();
                     switch (this.selectedCategory) {
                         case 'pulsa':
                         case 'data':
+                        case 'emoney':
+                        case 'sms_telpon':
+                        case 'masa_aktif':
+                        case 'aktivasi_perdana':
+                        case 'esim':
+                        case 'bundling':
                             return this.phoneNumber;
-                        case 'pln':
-                            return this.plnCustomerId;
-                        case 'game':
-                            return this.gameUserId;
-                        case 'ewallet':
-                            return this.ewalletPhone;
                         default:
-                            return '';
+                            return this.customerInput;
                     }
+                },
+
+                getInternationalPlaceholder(category) {
+                    const placeholders = {
+                        'china_topup': 'Contoh: +8613812345678',
+                        'malaysia_topup': 'Contoh: +60123456789',
+                        'philippines_topup': 'Contoh: +639171234567',
+                        'singapore_topup': 'Contoh: +6591234567',
+                        'thailand_topup': 'Contoh: +66812345678',
+                        'vietnam_topup': 'Contoh: +84912345678'
+                    };
+                    return placeholders[category] || 'Masukkan nomor HP';
                 },
 
                 getCategoryTitle(category) {
                     const titles = {
                         pulsa: 'Pulsa',
                         data: 'Paket Data',
+                        games: 'Games',
+                        voucher: 'Voucher',
+                        emoney: 'E-Money',
                         pln: 'Token PLN',
-                        game: 'Voucher Game',
-                        ewallet: 'Top Up E-Wallet'
+                        china_topup: 'China Topup',
+                        malaysia_topup: 'Malaysia Topup',
+                        philippines_topup: 'Philippines Topup',
+                        singapore_topup: 'Singapore Topup',
+                        thailand_topup: 'Thailand Topup',
+                        sms_telpon: 'SMS & Telpon',
+                        vietnam_topup: 'Vietnam Topup',
+                        streaming_tv: 'Streaming TV',
+                        aktivasi_voucher: 'Aktivasi Voucher',
+                        masa_aktif: 'Masa Aktif',
+                        bundling: 'Bundling',
+                        aktivasi_perdana: 'Aktivasi Perdana',
+                        gas: 'Gas',
+                        esim: 'eSIM',
+                        media_sosial: 'Media Sosial'
                     };
                     return titles[category] || category;
+                },
+
+                getCustomerDataLabel(category) {
+                    const labels = {
+                        pln: 'ID Pelanggan PLN',
+                        games: 'User ID Game',
+                        voucher: 'Email',
+                        gas: 'ID Pelanggan Gas',
+                        china_topup: 'Nomor HP China',
+                        malaysia_topup: 'Nomor HP Malaysia',
+                        philippines_topup: 'Nomor HP Philippines',
+                        singapore_topup: 'Nomor HP Singapore',
+                        thailand_topup: 'Nomor HP Thailand',
+                        vietnam_topup: 'Nomor HP Vietnam',
+                        streaming_tv: 'Email Account',
+                        aktivasi_voucher: 'Nomor Kartu',
+                        media_sosial: 'Username/ID'
+                    };
+                    return labels[category] || 'Data Pelanggan';
                 },
 
                 formatPrice(price) {

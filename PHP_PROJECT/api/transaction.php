@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Validasi customer data berdasarkan kategori
-        if (in_array($product['category'], ['pulsa', 'data', 'ewallet'])) {
+        if (in_array($product['category'], ['pulsa', 'data', 'emoney', 'sms_telpon', 'masa_aktif', 'aktivasi_perdana', 'esim'])) {
             if (!validatePhoneNumber($customer_data)) {
                 jsonResponse(['success' => false, 'message' => 'Nomor HP tidak valid'], 400);
             }

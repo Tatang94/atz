@@ -14,9 +14,25 @@ function getProductCategories() {
         $categories = [
             'pulsa' => 0,
             'data' => 0,
+            'games' => 0,
+            'voucher' => 0,
+            'emoney' => 0,
             'pln' => 0,
-            'game' => 0,
-            'ewallet' => 0
+            'china_topup' => 0,
+            'malaysia_topup' => 0,
+            'philippines_topup' => 0,
+            'singapore_topup' => 0,
+            'thailand_topup' => 0,
+            'sms_telpon' => 0,
+            'vietnam_topup' => 0,
+            'streaming_tv' => 0,
+            'aktivasi_voucher' => 0,
+            'masa_aktif' => 0,
+            'bundling' => 0,
+            'aktivasi_perdana' => 0,
+            'gas' => 0,
+            'esim' => 0,
+            'media_sosial' => 0
         ];
         
         while ($row = $stmt->fetch()) {
@@ -25,7 +41,13 @@ function getProductCategories() {
         
         return $categories;
     } catch (PDOException $e) {
-        return ['pulsa' => 0, 'data' => 0, 'pln' => 0, 'game' => 0, 'ewallet' => 0];
+        return [
+            'pulsa' => 0, 'data' => 0, 'games' => 0, 'voucher' => 0, 'emoney' => 0,
+            'pln' => 0, 'china_topup' => 0, 'malaysia_topup' => 0, 'philippines_topup' => 0,
+            'singapore_topup' => 0, 'thailand_topup' => 0, 'sms_telpon' => 0, 'vietnam_topup' => 0,
+            'streaming_tv' => 0, 'aktivasi_voucher' => 0, 'masa_aktif' => 0, 'bundling' => 0,
+            'aktivasi_perdana' => 0, 'gas' => 0, 'esim' => 0, 'media_sosial' => 0
+        ];
     }
 }
 
