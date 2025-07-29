@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { getDigiflazzService, isDigiflazzConfigured } from "./services/digiflazz";
-import { payDisiniService } from "./services/paydisini";
+import { getPayDisiniService, isPayDisiniConfigured } from "./services/paydisini";
 import { insertTransactionSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -11,23 +11,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Check API configuration status
   app.get("/api/config/status", (req, res) => {
+    const digiflazzConfigured = isDigiflazzConfigured();
+    const payDisiniConfigured = isPayDisiniConfigured();
+    
     res.json({
-      digiflazz: isDigiflazzConfigured(),
-      message: isDigiflazzConfigured() 
-        ? "Digiflazz API dikonfigurasi dengan benar"
-        : "Digiflazz API belum dikonfigurasi. Tambahkan DIGIFLAZZ_USERNAME dan DIGIFLAZZ_API_KEY"
+      digiflazz: digiflazzConfigured,
+      paydisini: payDisiniConfigured,
+      message: {
+        digiflazz: digiflazzConfigured 
+          ? "Digiflazz API dikonfigurasi dengan benar"
+          : "Digiflazz API belum dikonfigurasi. Tambahkan DIGIFLAZZ_USERNAME dan DIGIFLAZZ_API_KEY",
+        paydisini: payDisiniConfigured
+          ? "PayDisini API dikonfigurasi dengan benar"
+          : "PayDisini API belum dikonfigurasi. Tambahkan PAYDISINI_API_KEY"
+      }
     });
   });
 
   // Admin configuration endpoints
   app.post("/api/admin/config", async (req, res) => {
     try {
-      const { digiflazzUsername, digiflazzApiKey } = req.body;
+      const { digiflazzUsername, digiflazzApiKey, payDisiniApiKey } = req.body;
       
-      console.log("Saving config:", { digiflazzUsername, digiflazzApiKey: digiflazzApiKey ? "***" : "empty" });
+      console.log("Saving config:", { 
+        digiflazzUsername, 
+        digiflazzApiKey: digiflazzApiKey ? "***" : "empty",
+        payDisiniApiKey: payDisiniApiKey ? "***" : "empty"
+      });
       
-      // In a real implementation, you would save these to environment variables
-      // For now, we'll temporarily set them in process.env
+      // Set environment variables for this session
       if (digiflazzUsername) {
         process.env.DIGIFLAZZ_USERNAME = digiflazzUsername;
         console.log("Set DIGIFLAZZ_USERNAME:", digiflazzUsername);
@@ -36,12 +48,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         process.env.DIGIFLAZZ_API_KEY = digiflazzApiKey;
         console.log("Set DIGIFLAZZ_API_KEY: ***");
       }
-      
-      console.log("After setting, isConfigured:", isDigiflazzConfigured());
+      if (payDisiniApiKey) {
+        process.env.PAYDISINI_API_KEY = payDisiniApiKey;
+        console.log("Set PAYDISINI_API_KEY: ***");
+      }
       
       res.json({ 
         message: "Konfigurasi berhasil disimpan",
-        digiflazz: isDigiflazzConfigured()
+        digiflazz: isDigiflazzConfigured(),
+        paydisini: isPayDisiniConfigured()
       });
     } catch (error) {
       console.error("Error saving configuration:", error);
@@ -56,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "API Digiflazz belum dikonfigurasi" });
       }
       
-      const balance = await digiflazzService.getBalance();
+      const balance = await getDigiflazzService().getBalance();
       res.json({ 
         message: "API Digiflazz berhasil terhubung",
         balance 
@@ -64,6 +79,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error testing Digiflazz API:", error);
       res.status(500).json({ message: "Gagal menghubungi API Digiflazz" });
+    }
+  });
+
+  // Test PayDisini API
+  app.post("/api/admin/test-paydisini", async (req, res) => {
+    try {
+      if (!isPayDisiniConfigured()) {
+        return res.status(400).json({ message: "API PayDisini belum dikonfigurasi" });
+      }
+      
+      const paymentMethods = await getPayDisiniService().getPaymentMethods();
+      res.json({ 
+        message: "API PayDisini berhasil terhubung",
+        methods: paymentMethods.data 
+      });
+    } catch (error) {
+      console.error("Error testing PayDisini API:", error);
+      res.status(500).json({ message: "Gagal menghubungi API PayDisini" });
     }
   });
 

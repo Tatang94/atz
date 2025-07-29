@@ -10,6 +10,15 @@ define('DIGIFLAZZ_USERNAME', '');
 define('DIGIFLAZZ_API_KEY', '');
 define('PAYDISINI_API_KEY', '');
 
+// Fungsi untuk mengecek konfigurasi API
+function isPayDisiniConfigured() {
+    return !empty(PAYDISINI_API_KEY);
+}
+
+function isDigiflazzConfigured() {
+    return !empty(DIGIFLAZZ_USERNAME) && !empty(DIGIFLAZZ_API_KEY);
+}
+
 // Konfigurasi Aplikasi
 define('APP_NAME', 'Pulsa Indonesia');
 define('APP_URL', 'http://localhost');

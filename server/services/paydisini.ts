@@ -197,7 +197,25 @@ export class PayDisiniService {
   }
 }
 
-export const payDisiniService = new PayDisiniService({
-  apiKey: "ff79be802563e5dc1311c227a72d17c1",
-  productionMode: process.env.NODE_ENV === "production",
-});
+// Create service instance that can be updated with environment variables
+export const getPayDisiniService = () => {
+  const apiKey = process.env.PAYDISINI_API_KEY || "";
+  
+  if (!apiKey) {
+    console.warn("PayDisini API key not configured");
+  }
+  
+  return new PayDisiniService({
+    apiKey,
+    productionMode: process.env.NODE_ENV === "production",
+  });
+};
+
+export const payDisiniService = getPayDisiniService();
+
+// Check if PayDisini is configured
+export const isPayDisiniConfigured = () => {
+  const apiKey = process.env.PAYDISINI_API_KEY || "";
+  console.log("PayDisini configured:", { hasApiKey: !!apiKey });
+  return apiKey !== "";
+};

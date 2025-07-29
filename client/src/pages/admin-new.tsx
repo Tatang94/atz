@@ -43,6 +43,7 @@ export default function AdminNew() {
   // Configuration states
   const [digiflazzUsername, setDigiflazzUsername] = useState("");
   const [digiflazzApiKey, setDigiflazzApiKey] = useState("");
+  const [payDisiniApiKey, setPayDisiniApiKey] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -119,6 +120,27 @@ export default function AdminNew() {
     },
   });
 
+  // Test PayDisini API mutation
+  const testPayDisiniMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/admin/test-paydisini', {});
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Test PayDisini berhasil",
+        description: `${data.methods?.length || 0} metode pembayaran tersedia`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Test PayDisini gagal",
+        description: error.message || "Periksa kembali API key PayDisini",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Sync products mutation
   const syncProductsMutation = useMutation({
     mutationFn: async () => {
@@ -143,7 +165,11 @@ export default function AdminNew() {
   });
 
   const handleSaveConfig = () => {
-    saveConfigMutation.mutate();
+    saveConfigMutation.mutate({
+      digiflazzUsername,
+      digiflazzApiKey,
+      payDisiniApiKey
+    });
   };
 
   const formatCurrency = (amount: string | number) => {
@@ -376,6 +402,57 @@ export default function AdminNew() {
               </CardContent>
             </Card>
 
+            {/* PayDisini Configuration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  Konfigurasi PayDisini
+                </CardTitle>
+                <CardDescription>
+                  Masukkan API key PayDisini untuk payment gateway
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="paydisini-key">API Key PayDisini</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      id="paydisini-key"
+                      type={showPasswords ? "text" : "password"}
+                      placeholder="Masukkan API key PayDisini"
+                      value={payDisiniApiKey}
+                      onChange={(e) => setPayDisiniApiKey(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowPasswords(!showPasswords)}
+                    >
+                      {showPasswords ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => testPayDisiniMutation.mutate()}
+                    disabled={!payDisiniApiKey || testPayDisiniMutation.isPending}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    {testPayDisiniMutation.isPending ? (
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <TestTube className="w-4 h-4 mr-2" />
+                    )}
+                    Test PayDisini
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
           </TabsContent>
 

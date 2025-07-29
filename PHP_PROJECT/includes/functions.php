@@ -84,22 +84,23 @@ function getProductById($id) {
 }
 
 // Fungsi untuk membuat transaksi baru
-function createTransaction($product_id, $customer_data, $amount) {
+function createTransaction($product_id, $customer_data, $amount, $unique_code = null) {
     global $pdo;
     
     try {
         $transaction_id = 'TRX-' . date('YmdHis') . '-' . rand(1000, 9999);
         
         $stmt = $pdo->prepare("
-            INSERT INTO transactions (transaction_id, product_id, customer_phone, amount, status, created_at)
-            VALUES (?, ?, ?, ?, 'pending', NOW())
+            INSERT INTO transactions (transaction_id, product_id, customer_phone, amount, payment_reference, status, created_at)
+            VALUES (?, ?, ?, ?, ?, 'pending', NOW())
         ");
         
-        $stmt->execute([$transaction_id, $product_id, $customer_data, $amount]);
+        $stmt->execute([$transaction_id, $product_id, $customer_data, $amount, $unique_code]);
         
         return [
             'success' => true,
             'transaction_id' => $transaction_id,
+            'unique_code' => $unique_code,
             'id' => $pdo->lastInsertId()
         ];
     } catch (PDOException $e) {
@@ -147,6 +148,25 @@ function updateTransactionStatus($transaction_id, $status, $reference = null) {
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
+        
+        return $stmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+// Fungsi untuk update transaksi berdasarkan payment reference
+function updateTransactionByReference($payment_reference, $status) {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->prepare("
+            UPDATE transactions 
+            SET status = ?, updated_at = NOW() 
+            WHERE payment_reference = ?
+        ");
+        
+        $stmt->execute([$status, $payment_reference]);
         
         return $stmt->rowCount() > 0;
     } catch (PDOException $e) {
